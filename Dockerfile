@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 COPY apache_default /etc/apache2/sites-available/default
 RUN a2enmod rewrite
 
-RUN curl -SL https://github.com/edsondewes/docker-ecidade/releases/download/v2.3.46/e-cidade-2.3.46.tar.gz | tar -xz -C /var/www/
+RUN curl -SL https://github.com/edsondewes/docker-ecidade/releases/download/2.3.46/e-cidade-2.3.46.tar.gz | tar -xz -C /var/www/
 
 RUN mkdir /var/www/tmp \
     && chown -R www-data.www-data /var/www/tmp \
