@@ -1,8 +1,14 @@
 #!/bin/bash
 set -e
 
-if [ -z "$POSTGRES_PORT_5432_TCP_ADDR" ]; then
-  echo >&2 'erro: é necessário linkar um container de banco de dados postgresql'
+: ${DB_SERVIDOR:=$POSTGRES_PORT_5432_TCP_ADDR}
+: ${DB_USUARIO:=${POSTGRES_ENV_POSTGRES_USER:-ecidade}}
+: ${DB_SENHA:=${POSTGRES_ENV_POSTGRES_PASSWORD:-}}
+: ${DB_PORTA:=${POSTGRES_PORT_5432_TCP_PORT:-5432}}
+: ${DB_BASE:=${POSTGRES_ENV_POSTGRES_DB:=e-cidade}}
+
+if [ -z "$DB_SERVIDOR" ]; then
+  echo >&2 'erro: é necessário linkar um container de banco de dados postgresql ou setar a variável DB_SERVIDOR'
   exit 1
 fi
 
@@ -39,12 +45,12 @@ sed -i '646s/.*/error_log = \/var\/www\/log\/php-scripts.log/' /etc/php5/apache2
 sed -i '1516s/.*/session.gc_maxlifetime = 7200/' /etc/php5/apache2/php.ini
 
 echo 'Configurando db_conn.php'
-sed -i "9s/.*/\$DB_USUARIO = \"$POSTGRES_ENV_POSTGRES_USER\";/" /var/www/e-cidade/libs/db_conn.php
-sed -i '10s/.*/$DB_SENHA = "";/' /var/www/e-cidade/libs/db_conn.php
-sed -i "11s/.*/\$DB_SERVIDOR = \"$POSTGRES_PORT_5432_TCP_ADDR\";/" /var/www/e-cidade/libs/db_conn.php
-sed -i "12s/.*/\$DB_PORTA = \"$POSTGRES_PORT_5432_TCP_PORT\";/" /var/www/e-cidade/libs/db_conn.php
-sed -i "13s/.*/\$DB_PORTA_ALT = \"$POSTGRES_PORT_5432_TCP_PORT\";/" /var/www/e-cidade/libs/db_conn.php
-sed -i "14s/.*/\$DB_BASE = \"$POSTGRES_ENV_POSTGRES_DB\";/" /var/www/e-cidade/libs/db_conn.php
+sed -i "9s/.*/\$DB_USUARIO = \"$DB_USUARIO\";/" /var/www/e-cidade/libs/db_conn.php
+sed -i "10s/.*/\$DB_SENHA = \"$DB_SENHA\";/" /var/www/e-cidade/libs/db_conn.php
+sed -i "11s/.*/\$DB_SERVIDOR = \"$DB_SERVIDOR\";/" /var/www/e-cidade/libs/db_conn.php
+sed -i "12s/.*/\$DB_PORTA = \"$DB_PORTA\";/" /var/www/e-cidade/libs/db_conn.php
+sed -i "13s/.*/\$DB_PORTA_ALT = \"$DB_PORTA\";/" /var/www/e-cidade/libs/db_conn.php
+sed -i "14s/.*/\$DB_BASE = \"$DB_BASE\";/" /var/www/e-cidade/libs/db_conn.php
 
 echo 'Configurando plugins.json'
 if ! [ -e /var/www/e-cidade/config/plugins.json ]; then
